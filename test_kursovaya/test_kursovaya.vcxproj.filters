@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Исходные файлы">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Файлы заголовков">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Файлы ресурсов">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Исходные файлы\assets">
+      <UniqueIdentifier>{45979859-3c41-4d4b-83a9-76a4ae949901}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\assets\fonts">
+      <UniqueIdentifier>{b3ea117b-05a8-4412-95b8-4e4a8ca25fec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\assets\textures">
+      <UniqueIdentifier>{a1c4e96c-faaf-485b-84e4-3f10e8376e4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\src">
+      <UniqueIdentifier>{9dde450c-5969-4c89-ba34-7e20768bca55}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt">
+      <Filter>Исходные файлы</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="arial.ttf">
+      <Filter>Исходные файлы\assets\fonts</Filter>
+    </Font>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Game.cpp">
+      <Filter>Исходные файлы\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Исходные файлы\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Player.cpp">
+      <Filter>Исходные файлы\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Croco.cpp">
+      <Filter>Исходные файлы\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Worm.cpp">
+      <Filter>Исходные файлы\src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Game.h">
+      <Filter>Исходные файлы\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Player.h">
+      <Filter>Исходные файлы\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Croco.h">
+      <Filter>Исходные файлы\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Worm.h">
+      <Filter>Исходные файлы\src</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
