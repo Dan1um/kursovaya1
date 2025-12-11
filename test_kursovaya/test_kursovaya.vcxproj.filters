@@ -25,6 +25,9 @@
     <Filter Include="Исходные файлы\src">
       <UniqueIdentifier>{9dde450c-5969-4c89-ba34-7e20768bca55}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\assets\levels">
+      <UniqueIdentifier>{5262c373-c704-452f-90ea-d392b47f0578}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt">
@@ -52,6 +55,21 @@
     <ClCompile Include="src\Worm.cpp">
       <Filter>Исходные файлы\src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Swamp.cpp">
+      <Filter>Исходные файлы\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Wizard.cpp">
+      <Filter>Исходные файлы\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Fireball.cpp">
+      <Filter>Исходные файлы\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SwampLevel.cpp">
+      <Filter>Исходные файлы\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pugixml.cpp">
+      <Filter>Исходные файлы\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Game.h">
@@ -66,5 +84,37 @@
     <ClInclude Include="src\Worm.h">
       <Filter>Исходные файлы\src</Filter>
     </ClInclude>
+    <ClInclude Include="src\Swamp.h">
+      <Filter>Исходные файлы\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Wizard.h">
+      <Filter>Исходные файлы\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Fireball.h">
+      <Filter>Исходные файлы\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SwampLevel.h">
+      <Filter>Исходные файлы\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pugiconfig.hpp">
+      <Filter>Исходные файлы\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pugixml.hpp">
+      <Filter>Исходные файлы\src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\levels\21.tsx">
+      <Filter>Исходные файлы\assets\levels</Filter>
+    </None>
+    <None Include="assets\levels\level_swamp.tmx">
+      <Filter>Исходные файлы\assets\levels</Filter>
+    </None>
+    <None Include="assets\levels\test.tsx">
+      <Filter>Исходные файлы\assets\levels</Filter>
+    </None>
+    <None Include="assets\levels\tileset.tsx">
+      <Filter>Исходные файлы\assets\levels</Filter>
+    </None>
   </ItemGroup>
 </Project>

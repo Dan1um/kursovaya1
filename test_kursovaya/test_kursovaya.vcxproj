@@ -26,16 +26,33 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Croco.cpp" />
+    <ClCompile Include="src\Fireball.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Player.cpp" />
+    <ClCompile Include="src\pugixml.cpp" />
+    <ClCompile Include="src\Swamp.cpp" />
+    <ClCompile Include="src\SwampLevel.cpp" />
+    <ClCompile Include="src\Wizard.cpp" />
     <ClCompile Include="src\Worm.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Croco.h" />
+    <ClInclude Include="src\Fireball.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\Player.h" />
+    <ClInclude Include="src\pugiconfig.hpp" />
+    <ClInclude Include="src\pugixml.hpp" />
+    <ClInclude Include="src\Swamp.h" />
+    <ClInclude Include="src\SwampLevel.h" />
+    <ClInclude Include="src\Wizard.h" />
     <ClInclude Include="src\Worm.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\levels\21.tsx" />
+    <None Include="assets\levels\level_swamp.tmx" />
+    <None Include="assets\levels\test.tsx" />
+    <None Include="assets\levels\tileset.tsx" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -122,6 +139,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>D:\sfml\SFML-2.6.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

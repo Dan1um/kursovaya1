@@ -3,7 +3,7 @@
 Worm::Worm(const sf::Vector2f& pos) {
     texture.loadFromFile("assets/textures/worm.png");
     sprite.setTexture(texture);
-    sprite.setPosition(pos);
+    sprite.setPosition(pos.x, pos.y - 28.f);
     sprite.setScale(3.f, 3.f);
     sprite.setTextureRect(sf::IntRect(0, 0, 32, 32));
     velocity.x = moveSpeed;
@@ -19,7 +19,7 @@ void Worm::update(float dt, const sf::FloatRect& groundBounds) {
     if (sprite.getPosition().x < groundBounds.left + 100.f ||
         sprite.getPosition().x + 32.f * 2 > groundBounds.left + groundBounds.width - 100.f) {
         velocity.x = -velocity.x;
-        sprite.setScale((velocity.x < 0 ? 2.f : -2.f), 2.f);
+        sprite.setScale((velocity.x < 0 ? 3.f : -3.f), 3.f);
     }
 
     // анимация
@@ -43,5 +43,10 @@ void Worm::takeDamage(int dmg) {
 }
 
 sf::FloatRect Worm::getBounds() const {
-    return sprite.getGlobalBounds();
+    sf::FloatRect box = sprite.getGlobalBounds();
+    box.left += 15.f;     // немного сузим слева
+    box.width -= 30.f;    // сузим справа
+    box.top += 10.f;      // чуть выше, чтобы совпадало с телом
+    box.height -= 15.f;
+    return box;
 }

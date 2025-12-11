@@ -17,8 +17,14 @@ public:
     int getAttackDamage() const { return 1; }
     void takeDamage(int dmg);
 
+    void setPosition(const sf::Vector2f& pos) {
+        sprite.setPosition(pos);
+        position = pos;
+    }
+
 private:
     sf::Sprite sprite;
+    sf::Vector2f position;
     sf::Texture textureRun;
     sf::Texture textureAttack;
 

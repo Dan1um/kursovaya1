@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <array>
 
 class Player {
 public:
@@ -13,25 +14,39 @@ public:
     sf::FloatRect getHitbox() const;
     int getAttackDamage() const { return 1; }
 
+    void handleTileCollisions(const std::vector<sf::FloatRect>& tiles);
+
     void takeDamage(int dmg);
     sf::Vector2f getPosition() const { return sprite.getPosition(); }
-    sf::FloatRect getBounds() const { return sprite.getGlobalBounds(); }
+
+    sf::FloatRect getBounds() const;
+
     sf::Vector2f getVelocity() const { return velocity; }   // <-- нужно для stomp
     void bounce(float strength = 250.f);
-
+    void applyKnockback(float strength, bool fromRight);
     bool isAlive() const { return hp > 0; }
+
+    void setPosition(const sf::Vector2f& pos) {
+        sprite.setPosition(pos);
+        position = pos;
+    }
 
 private:
     enum class State { Idle, Run, Jump, Attack };
+
+    void resolveTileCollisionsX(const std::vector<sf::FloatRect>& tiles);
+    void resolveTileCollisionsY(const std::vector<sf::FloatRect>& tiles);
 
     void setState(State s);
     void updateAnimation(float dt);
     void updateHpBar();
 
     sf::Sprite sprite;
-    sf::Texture textureRun;
-    sf::Texture textureJump;
-    sf::Texture textureAttack;
+    sf::Vector2f position;
+    std::array<sf::Texture, 4> idleTextures;
+    std::array<sf::Texture, 6> runTextures;
+    std::array<sf::Texture, 4> jumpTextures;
+    std::array<sf::Texture, 5> attackTextures;
 
     // frame params (current texture)
     float frameWidth = 64.f;
@@ -42,9 +57,11 @@ private:
     float frameTime = 0.f;
     float animSpeed = 0.10f;
 
-    int runFrameCount = 8;
+    int runFrameCount = 6;
     int jumpFrameCount = 4;
-    int attackFrameCount = 6;
+    int attackFrameCount = 5;
+    int idleFrameCount = 4;
+
 
     int currentFrame = 0; // alias for clarity (index)
     // movement
@@ -52,7 +69,8 @@ private:
     bool onGround = false;
     bool facingRight = true;
     float moveSpeed = 220.f;
-    float jumpStrength = 450.f;
+    float jumpStrength = 520.f;
+    bool movingRight = true;
 
     // state
     State currentState = State::Idle;
