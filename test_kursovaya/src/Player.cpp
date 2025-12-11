@@ -2,17 +2,18 @@
 #include <iostream>
 
 Player::Player() {
-    textureRun.loadFromFile("assets/textures/player.png");
-    textureJump.loadFromFile("assets/textures/jump.png");
-    textureAttack.loadFromFile("assets/textures/atack.png");
+    for (int i = 0; i < runFrameCount; ++i)
+        runTextures[i].loadFromFile("assets/textures/hero-run/hero-run-" + std::to_string(i + 1) + ".png");
+    for (int i = 0; i < idleFrameCount; ++i)
+        idleTextures[i].loadFromFile("assets/textures/hero-idle/hero-idle-" + std::to_string(i + 1) + ".png");
+    for (int i = 0; i < jumpFrameCount; ++i)
+        jumpTextures[i].loadFromFile("assets/textures/hero-jump/hero-jump-" + std::to_string(i + 1) + ".png");
+    for (int i = 0; i < attackFrameCount; ++i)
+        attackTextures[i].loadFromFile("assets/textures/hero-attack/hero-attack-" + std::to_string(i + 1) + ".png");
 
-    sprite.setTexture(textureRun);
-    runFrameCount = 8;
-    jumpFrameCount = 4;
-    attackFrameCount = 6;
-    frameWidth = textureRun.getSize().x / runFrameCount;
-    frameHeight = textureRun.getSize().y;
-    sprite.setTextureRect({ 0, 0, (int)frameWidth, (int)frameHeight });
+    sprite.setTexture(runTextures[0]);
+    frameWidth = runTextures[0].getSize().x;
+    frameHeight = runTextures[0].getSize().y;
     sprite.setScale(2.f, 2.f);
     sprite.setPosition(200.f, 400.f);
 
@@ -34,35 +35,47 @@ void Player::update(float dt, float gravity, const sf::FloatRect& groundBounds) 
     if (attackCooldownTimer > 0) attackCooldownTimer -= dt;
     if (invulTimer > 0) invulTimer -= dt;
 
-    if (!attacking) velocity.x = 0;
-    if (!attacking) {
-        if (left) { velocity.x = -moveSpeed; facingRight = false; }
-        if (right) { velocity.x = moveSpeed; facingRight = true; }
-        if (onGround && jump) { velocity.y = -jumpStrength; onGround = false; setState(State::Jump); }
-        if (onGround && attack && attackCooldownTimer <= 0) { setState(State::Attack); attacking = true; hitActive = false; frame = 0; attackCooldownTimer = attackCooldown; }
+    // движение
+    if (attacking) velocity.x = 0;
+    else {
+        velocity.x = 0;
+        if (left) { velocity.x = -moveSpeed; facingRight = false; movingRight = false; }
+        if (right) { velocity.x = moveSpeed; facingRight = true; movingRight = true; }
+
+        // прыжок
+        if (onGround && jump) {
+            velocity.y = -jumpStrength;
+            onGround = false;
+            setState(State::Jump);
+        }
+
+        // атака
+        if (onGround && attack && attackCooldownTimer <= 0) {
+            setState(State::Attack);
+            attacking = true;
+            hitActive = false;
+            frame = 0;
+            attackCooldownTimer = attackCooldown;
+        }
     }
 
-    velocity.y += gravity * dt;
-    sprite.move(velocity * dt);
-
+    velocity.y += gravity * dt; sprite.move(velocity * dt);
     // ground check
     sf::FloatRect b = sprite.getGlobalBounds();
     if (b.intersects(groundBounds)) {
         sprite.setPosition(sprite.getPosition().x, groundBounds.top - b.height);
-        velocity.y = 0;
-        onGround = true;
+        velocity.y = 0; onGround = true;
     }
     else onGround = false;
 
+    // --- Смена состояний ---
     if (onGround && !attacking) {
         if (std::abs(velocity.x) < 0.1f) setState(State::Idle);
         else setState(State::Run);
     }
 
-    // update animation
     updateAnimation(dt);
 
-    // mirror
     float sx = std::abs(sprite.getScale().x);
     sprite.setScale(facingRight ? sx : -sx, sprite.getScale().y);
     sprite.setOrigin(facingRight ? 0.f : frameWidth, 0.f);
@@ -75,26 +88,24 @@ void Player::updateAnimation(float dt) {
     if (frameTime < animSpeed) return;
     frameTime = 0;
 
-    if (currentState == State::Idle) {
-        sprite.setTexture(textureRun);
-        sprite.setTextureRect({ 0, 0, (int)frameWidth, (int)frameHeight });
-        return;
-    }
+    switch (currentState) {
+    case State::Idle:
+        frame = (frame + 1) % idleFrameCount;
+        sprite.setTexture(idleTextures[frame]);
+        break;
 
-    if (currentState == State::Run) {
-        sprite.setTexture(textureRun);
+    case State::Run:
         frame = (frame + 1) % runFrameCount;
-        sprite.setTextureRect({ (int)(frame * frameWidth), 0, (int)frameWidth, (int)frameHeight });
-    }
-    else if (currentState == State::Jump) {
-        sprite.setTexture(textureJump);
+        sprite.setTexture(runTextures[frame]);
+        break;
+
+    case State::Jump:
         frame = std::min(frame + 1, jumpFrameCount - 1);
-        sprite.setTextureRect({ (int)(frame * (textureJump.getSize().x / jumpFrameCount)), 0, (int)frameWidth, (int)frameHeight });
-    }
-    else if (currentState == State::Attack) {
-        sprite.setTexture(textureAttack);
+        sprite.setTexture(jumpTextures[frame]);
+        break;
+
+    case State::Attack:
         frame++;
-        int texW = textureAttack.getSize().x / attackFrameCount;
         if (frame >= attackFrameCount) {
             attacking = false;
             hitActive = false;
@@ -102,9 +113,10 @@ void Player::updateAnimation(float dt) {
             setState(onGround ? State::Idle : State::Jump);
         }
         else {
-            sprite.setTextureRect({ frame * texW, 0, texW, (int)frameHeight });
+            sprite.setTexture(attackTextures[frame]);
             hitActive = (frame == attackFrameCount / 2);
         }
+        break;
     }
 }
 
@@ -116,24 +128,49 @@ void Player::setState(State s) {
     hitActive = false;
 }
 
+// --- Уменьшенный хитбокс для коллизий ---
+sf::FloatRect Player::getBounds() const {
+    sf::FloatRect b = sprite.getGlobalBounds();
+    float shrinkX = b.width * 0.35f;
+    float shrinkY = b.height * 0.25f;
+    b.left += shrinkX / 2.f;
+    b.top += shrinkY / 2.f;
+    b.width -= shrinkX;
+    b.height -= shrinkY;
+    return b;
+}
+
 sf::FloatRect Player::getHitbox() const {
     if (!hitActive) return {};
     sf::FloatRect b = sprite.getGlobalBounds();
-    float w = b.width * 0.4f;
-    float h = b.height * 0.5f;
-    float x = facingRight ? (b.left + b.width * 0.6f) : (b.left - w * 0.2f);
-    float y = b.top + b.height * 0.2f;
+    float w = b.width * 0.6f;
+    float h = b.height * 0.6f;
+    float x = b.left + b.width * 0.2f;
+    float y = b.top + b.height * 0.3f;
     return { x, y, w, h };
 }
 
 void Player::takeDamage(int dmg) {
     if (invulTimer > 0) return;
+
     hp -= dmg;
     if (hp <= 0) hp = 0;
     invulTimer = invulDuration;
+
+    // исправленный отскок — противоположно направлению взгляда
+    applyKnockback(600.f, facingRight);
 }
 
-void Player::bounce(float s) { velocity.y = -s; onGround = false; }
+void Player::applyKnockback(float strength, bool fromRight) {
+    velocity.x = fromRight ? -strength : strength;
+    velocity.y = -strength * 0.35f;
+    onGround = false;
+}
+
+void Player::bounce(float s) {
+    velocity.y = -s;
+    onGround = false;
+}
 
 void Player::updateHpBar() {
     float ratio = (float)hp / maxHp;
@@ -144,5 +181,86 @@ void Player::updateHpBar() {
 }
 
 void Player::draw(sf::RenderWindow& w) {
-    if (hp > 0) { w.draw(sprite); w.draw(hpBack); w.draw(hpFront); }
+    if (hp > 0) {
+        w.draw(sprite);
+        w.draw(hpBack);
+        w.draw(hpFront);
+    }
+}
+
+void Player::resolveTileCollisionsX(const std::vector<sf::FloatRect>& tiles) {
+    sf::FloatRect p = getBounds();
+    for (const auto& tile : tiles) {
+        if (p.intersects(tile)) {
+            if (velocity.x > 0)
+                sprite.setPosition(tile.left - p.width, sprite.getPosition().y);
+            else if (velocity.x < 0)
+                sprite.setPosition(tile.left + tile.width, sprite.getPosition().y);
+            velocity.x = 0;
+            break;
+        }
+    }
+}
+
+void Player::resolveTileCollisionsY(const std::vector<sf::FloatRect>& tiles) {
+    sf::FloatRect p = getBounds();
+    onGround = false;
+
+    for (const auto& tile : tiles) {
+        if (p.intersects(tile)) {
+            if (velocity.y > 0) {
+                sprite.setPosition(sprite.getPosition().x, tile.top - p.height);
+                onGround = true;
+            }
+            else if (velocity.y < 0) {
+                sprite.setPosition(sprite.getPosition().x, tile.top + tile.height);
+            }
+            velocity.y = 0;
+            break;
+        }
+    }
+}
+
+void Player::handleTileCollisions(const std::vector<sf::FloatRect>& tiles)
+{
+    sf::FloatRect playerBox = getBounds();
+
+    for (const auto& tile : tiles)
+    {
+        if (!playerBox.intersects(tile)) continue;
+
+        float dxLeft = std::abs((playerBox.left + playerBox.width) - tile.left);
+        float dxRight = std::abs(playerBox.left - (tile.left + tile.width));
+        float dyTop = std::abs((playerBox.top + playerBox.height) - tile.top);
+        float dyBottom = std::abs(playerBox.top - (tile.top + tile.height));
+
+        if (std::min(dxLeft, dxRight) < std::min(dyTop, dyBottom))
+        {
+            // горизонтальный удар
+            if (dxLeft < dxRight)
+                sprite.move(-dxLeft, 0);
+            else
+                sprite.move(dxRight, 0);
+
+            velocity.x = 0;
+        }
+        else
+        {
+            // вертикальный удар
+            if (dyTop < dyBottom)
+            {
+                // приземление на тайл
+                sprite.move(0, -dyTop);
+                velocity.y = 0;
+                onGround = true;
+            }
+            else
+            {
+                sprite.move(0, dyBottom);
+                velocity.y = 0;
+            }
+        }
+
+        playerBox = getBounds(); // обновить после перемещения
+    }
 }

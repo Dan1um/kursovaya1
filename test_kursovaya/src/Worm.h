@@ -11,9 +11,15 @@ public:
     bool isAlive() const { return alive; }
     sf::FloatRect getBounds() const;
 
+    void setPosition(const sf::Vector2f& pos) {
+        sprite.setPosition(pos);
+        position = pos;
+    }
+
 private:
     sf::Sprite sprite;
     sf::Texture texture;
+    sf::Vector2f position;
 
     float frameTime = 0.f;
     int frame = 0;
