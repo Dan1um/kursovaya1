@@ -46,9 +46,6 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Исходные файлы\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Player.cpp">
-      <Filter>Исходные файлы\src</Filter>
-    </ClCompile>
     <ClCompile Include="src\Croco.cpp">
       <Filter>Исходные файлы\src</Filter>
     </ClCompile>
@@ -64,18 +61,24 @@
     <ClCompile Include="src\Fireball.cpp">
       <Filter>Исходные файлы\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\SwampLevel.cpp">
+    <ClCompile Include="src\pugixml.cpp">
       <Filter>Исходные файлы\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\pugixml.cpp">
+    <ClCompile Include="src\Knight.cpp">
+      <Filter>Исходные файлы\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Trooper.cpp">
+      <Filter>Исходные файлы\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Monk.cpp">
+      <Filter>Исходные файлы\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Projectile.cpp">
       <Filter>Исходные файлы\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Game.h">
-      <Filter>Исходные файлы\src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Player.h">
       <Filter>Исходные файлы\src</Filter>
     </ClInclude>
     <ClInclude Include="src\Croco.h">
@@ -93,13 +96,25 @@
     <ClInclude Include="src\Fireball.h">
       <Filter>Исходные файлы\src</Filter>
     </ClInclude>
-    <ClInclude Include="src\SwampLevel.h">
-      <Filter>Исходные файлы\src</Filter>
-    </ClInclude>
     <ClInclude Include="src\pugiconfig.hpp">
       <Filter>Исходные файлы\src</Filter>
     </ClInclude>
     <ClInclude Include="src\pugixml.hpp">
+      <Filter>Исходные файлы\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Knight.h">
+      <Filter>Исходные файлы\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Trooper.h">
+      <Filter>Исходные файлы\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Monk.h">
+      <Filter>Исходные файлы\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Projectile.h">
+      <Filter>Исходные файлы\src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\PlayerClass.h">
       <Filter>Исходные файлы\src</Filter>
     </ClInclude>
   </ItemGroup>

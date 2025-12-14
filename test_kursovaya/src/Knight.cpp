@@ -1,7 +1,6 @@
-﻿#include "Player.h"
-#include <iostream>
+﻿#include "Knight.h"
 
-Player::Player() {
+Knight::Knight() {
     for (int i = 0; i < runFrameCount; ++i)
         runTextures[i].loadFromFile("assets/textures/hero-run/hero-run-" + std::to_string(i + 1) + ".png");
     for (int i = 0; i < idleFrameCount; ++i)
@@ -24,7 +23,7 @@ Player::Player() {
     hpFront.setFillColor(sf::Color::Green);
 }
 
-void Player::update(float dt, float gravity, const sf::FloatRect& groundBounds) {
+void Knight::update(float dt, float gravity, const sf::FloatRect& groundBounds) {
     if (hp <= 0) return;
 
     bool left = sf::Keyboard::isKeyPressed(sf::Keyboard::A);
@@ -83,7 +82,7 @@ void Player::update(float dt, float gravity, const sf::FloatRect& groundBounds) 
     updateHpBar();
 }
 
-void Player::updateAnimation(float dt) {
+void Knight::updateAnimation(float dt) {
     frameTime += dt;
     if (frameTime < animSpeed) return;
     frameTime = 0;
@@ -120,7 +119,7 @@ void Player::updateAnimation(float dt) {
     }
 }
 
-void Player::setState(State s) {
+void Knight::setState(State s) {
     if (currentState == s) return;
     currentState = s;
     frame = 0;
@@ -129,7 +128,7 @@ void Player::setState(State s) {
 }
 
 // --- Уменьшенный хитбокс для коллизий ---
-sf::FloatRect Player::getBounds() const {
+sf::FloatRect Knight::getBounds() const {
     sf::FloatRect b = sprite.getGlobalBounds();
     float shrinkX = b.width * 0.35f;
     float shrinkY = b.height * 0.25f;
@@ -140,7 +139,7 @@ sf::FloatRect Player::getBounds() const {
     return b;
 }
 
-sf::FloatRect Player::getHitbox() const {
+sf::FloatRect Knight::getHitbox() const {
     if (!hitActive) return {};
     sf::FloatRect b = sprite.getGlobalBounds();
     float w = b.width * 0.6f;
@@ -150,7 +149,7 @@ sf::FloatRect Player::getHitbox() const {
     return { x, y, w, h };
 }
 
-void Player::takeDamage(int dmg) {
+void Knight::takeDamage(int dmg) {
     if (invulTimer > 0) return;
 
     hp -= dmg;
@@ -161,26 +160,26 @@ void Player::takeDamage(int dmg) {
     applyKnockback(600.f, facingRight);
 }
 
-void Player::applyKnockback(float strength, bool fromRight) {
+void Knight::applyKnockback(float strength, bool fromRight) {
     velocity.x = fromRight ? -strength : strength;
     velocity.y = -strength * 0.35f;
     onGround = false;
 }
 
-void Player::bounce(float s) {
+void Knight::bounce(float s) {
     velocity.y = -s;
     onGround = false;
 }
 
-void Player::updateHpBar() {
+void Knight::updateHpBar() {
     float ratio = (float)hp / maxHp;
     hpFront.setSize({ 100 * ratio, 8 });
-    sf::Vector2f pos(sprite.getPosition().x - 10, sprite.getPosition().y - 20);
+    sf::Vector2f pos(sprite.getPosition().x + 15, sprite.getPosition().y - 20);
     hpBack.setPosition(pos);
     hpFront.setPosition(pos);
 }
 
-void Player::draw(sf::RenderWindow& w) {
+void Knight::draw(sf::RenderWindow& w) {
     if (hp > 0) {
         w.draw(sprite);
         w.draw(hpBack);
@@ -188,7 +187,7 @@ void Player::draw(sf::RenderWindow& w) {
     }
 }
 
-void Player::resolveTileCollisionsX(const std::vector<sf::FloatRect>& tiles) {
+void Knight::resolveTileCollisionsX(const std::vector<sf::FloatRect>& tiles) {
     sf::FloatRect p = getBounds();
     for (const auto& tile : tiles) {
         if (p.intersects(tile)) {
@@ -202,7 +201,7 @@ void Player::resolveTileCollisionsX(const std::vector<sf::FloatRect>& tiles) {
     }
 }
 
-void Player::resolveTileCollisionsY(const std::vector<sf::FloatRect>& tiles) {
+void Knight::resolveTileCollisionsY(const std::vector<sf::FloatRect>& tiles) {
     sf::FloatRect p = getBounds();
     onGround = false;
 
@@ -221,7 +220,7 @@ void Player::resolveTileCollisionsY(const std::vector<sf::FloatRect>& tiles) {
     }
 }
 
-void Player::handleTileCollisions(const std::vector<sf::FloatRect>& tiles)
+void Knight::handleTileCollisions(const std::vector<sf::FloatRect>& tiles)
 {
     sf::FloatRect playerBox = getBounds();
 
