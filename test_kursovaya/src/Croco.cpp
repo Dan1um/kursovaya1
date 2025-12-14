@@ -3,8 +3,8 @@
     #include <cmath>
 
     Croco::Croco(const sf::Vector2f& pos) {
-        if (!textureRun.loadFromFile("D:/vs projects/test_kursovaya/test_kursovaya/assets/textures/croco mob run.png")) std::cerr << "croco run load fail\n";
-        if (!textureAttack.loadFromFile("D:/vs projects/test_kursovaya/test_kursovaya/assets/textures/croco mob attack.png")) std::cerr << "croco attack load fail\n";
+        if (!textureRun.loadFromFile("assets/textures/croco mob run.png")) std::cerr << "croco run load fail\n";
+        if (!textureAttack.loadFromFile("assets/textures/croco mob attack.png")) std::cerr << "croco attack load fail\n";
 
         sprite.setTexture(textureRun);
         frameWidth = 32.f;
