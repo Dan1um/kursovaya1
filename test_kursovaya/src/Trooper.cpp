@@ -144,9 +144,19 @@ sf::FloatRect Trooper::getBounds() const {
 
 void Trooper::takeDamage(int dmg) {
     if (invulTimer > 0) return;
+
     hp -= dmg;
-    if (hp < 0) hp = 0;
+    if (hp <= 0) hp = 0;
     invulTimer = invulDuration;
+
+    // исправленный отскок — противоположно направлению взгляда
+    applyKnockback(600.f, facingRight);
+}
+
+void Trooper::applyKnockback(float strength, bool fromRight) {
+    velocity.x = fromRight ? -strength : strength;
+    velocity.y = -strength * 0.35f;
+    onGround = false;
 }
 
 void Trooper::bounce(float s) {
@@ -162,6 +172,10 @@ void Trooper::shoot(std::vector<Bullet>& bullets) {
     float dir = facingRight ? 1.f : -1.f;
 
     bullets.emplace_back(pos, dir);
+}
+
+void Trooper::heal(int amount) {
+    hp = std::min(hp + amount, maxHp);
 }
 
 void Trooper::draw(sf::RenderWindow& w) {

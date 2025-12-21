@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <array>
+#include "Inventory.h"
 
 class Knight {
 public:
@@ -21,7 +22,7 @@ public:
 
     sf::FloatRect getBounds() const;
 
-    sf::Vector2f getVelocity() const { return velocity; }   // <-- ????? ??? stomp
+    sf::Vector2f getVelocity() const { return velocity; }  
     void bounce(float strength = 250.f);
     void applyKnockback(float strength, bool fromRight);
     bool isAlive() const { return hp > 0; }
@@ -30,6 +31,11 @@ public:
         sprite.setPosition(pos);
         position = pos;
     }
+
+    void unlockDoubleJump() { doubleJumpUnlocked = true; maxJumps = 2; }
+    void unlockDash() { dashUnlocked = true; }
+
+    void heal(int amount);
 
 private:
     enum class State { Idle, Run, Jump, Attack };
@@ -62,8 +68,21 @@ private:
     int attackFrameCount = 5;
     int idleFrameCount = 4;
 
+    // abilities
+    bool doubleJumpUnlocked = false;
+    bool dashUnlocked = false;
 
-    int currentFrame = 0; // alias for clarity (index)
+    // dash
+    bool dashing = false;
+    float dashTime = 0.f;
+    float dashCooldown = 0.f;
+
+    // constants
+    float dashDuration = 0.25f;
+    float dashSpeed = 800.f;
+    float dashCooldownTime = 0.6f;
+
+    int currentFrame = 0;
     // movement
     sf::Vector2f velocity{ 0.f,0.f };
     bool onGround = false;
@@ -71,6 +90,8 @@ private:
     float moveSpeed = 220.f;
     float jumpStrength = 520.f;
     bool movingRight = true;
+    int jumpCount = 0;
+    int maxJumps = 1;
 
     // state
     State currentState = State::Idle;
@@ -86,4 +107,10 @@ private:
     float invulDuration = 0.5f;
     sf::RectangleShape hpBack;
     sf::RectangleShape hpFront;
+
+    Inventory inventory;
+
+    int potionsSmall = 0;
+    int potionsBig = 0;
+
 };

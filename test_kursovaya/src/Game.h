@@ -14,6 +14,13 @@
 #include "Fireball.h"
 #include "Projectile.h"
 
+#include "CoinsUI.h"
+
+#include "Merchant.h"
+#include "Plate.h"
+
+#include "Inventory.h"
+
 class Game {
 public:
     Game(PlayerClass chosenClass);
@@ -33,12 +40,25 @@ private:
     Knight knight;
     Trooper trooper;
     Monk monk;
+    Inventory inventory;
+    CoinsUI coinsUI;
+
+    float potionCooldown = 0.25f;
+    float potionTimer = 0.f;
 
     // враги и уровень
     Croco croco;
     Worm worm;
     Swamp swamp;
     Wizard wizard;
+
+    bool crocoRewarded = false;
+    bool wizardRewarded = false;
+
+    std::vector<Plate> plates;
+    Merchant merchant;
+
+    int coins = 0;
 
     std::vector<Fireball> fireballs;
     std::vector<Bullet> bullets;

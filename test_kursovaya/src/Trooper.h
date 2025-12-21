@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include "Projectile.h"
+#include "Inventory.h"
 
 class Trooper {
 public:
@@ -15,17 +16,20 @@ public:
     bool isHitActive() const { return false; } // ближняя атака отключена
     sf::FloatRect getHitbox() const { return {}; } // пустая зона удара
     int getAttackDamage() const { return 1; }
+    void applyKnockback(float strength, bool fromRight);
 
     void takeDamage(int dmg);
-    void bounce(float s); // используется при прыжке на Worm
+    void bounce(float strength = 250.f);
 
     sf::FloatRect getBounds() const;
     sf::Vector2f getPosition() const { return sprite.getPosition(); }
     sf::Vector2f getVelocity() const { return velocity; }
     void setPosition(const sf::Vector2f& p) { sprite.setPosition(p); }
 
+    void unlockDoubleJump() { doubleJumpUnlocked = true; }
+    void unlockDash() { dashUnlocked = true; }
 
-
+    void heal(int amount);
 private:
     enum class State { Idle, Run, Jump, Shoot };
 
@@ -35,6 +39,23 @@ private:
     sf::Texture jumpTextures[4];
     sf::Texture shootTextures[3];
     sf::Texture bulletTextures[2];
+
+    // abilities
+    bool doubleJumpUnlocked = false;
+    bool dashUnlocked = false;
+
+    // double jump
+    bool canDoubleJump = false;
+
+    // dash
+    bool dashing = false;
+    float dashTime = 0.f;
+    float dashCooldown = 0.f;
+
+    // constants
+    float dashDuration = 0.15f;
+    float dashSpeed = 800.f;
+    float dashCooldownTime = 0.6f;
 
     int frame = 0;
     float frameTime = 0.f;
@@ -56,6 +77,8 @@ private:
     float invulTimer = 0.f;
     float invulDuration = 0.4f;
 
+    Inventory inventory;
+
     // UI
     sf::RectangleShape hpBack;
     sf::RectangleShape hpFront;
@@ -66,6 +89,9 @@ private:
 
     // --- Дистанционная атака ---
     void shoot(std::vector<Bullet>& projectiles);
+
+    int potionsSmall = 0;
+    int potionsBig = 0;
 
     void setState(State s);
     void updateAnimation(float dt, std::vector<Bullet>& bullets);

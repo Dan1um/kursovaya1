@@ -8,11 +8,17 @@ Game::Game(PlayerClass chosenClass)
     , worm(sf::Vector2f(500.f, 575.f))
     , swamp(5000.f, 1280.f, 720.f)
     , wizard(sf::Vector2f(1200.f, 520.f))
+    , merchant(sf::Vector2f(100.f, 650.f))
 {
+    plates.emplace_back(sf::Vector2f(260.f, 625.f), PlateReward::HealSmall);
+    plates.emplace_back(sf::Vector2f(340.f, 625.f), PlateReward::HealBig);
+    plates.emplace_back(sf::Vector2f(420.f, 625.f), PlateReward::DoubleJump);
+    plates.emplace_back(sf::Vector2f(500.f, 625.f), PlateReward::Dash);
     window.setFramerateLimit(60);
     camera = window.getDefaultView();
     groundBounds = swamp.getGroundBounds();
     wizard.setFacingRight(false);
+
 }
 
 void Game::run() {
@@ -35,6 +41,10 @@ void Game::processEvent() {
 
 void Game::update(float dt) {
 
+    inventory.update(dt);
+    coinsUI.update(dt);
+    coinsUI.setView(camera);
+    potionTimer -= dt;
     // ================= PLAYER UPDATE =================
     sf::Vector2f playerPos;
     sf::FloatRect playerBounds;
@@ -163,6 +173,77 @@ void Game::update(float dt) {
             b.kill();
         }
     }
+
+    for (auto& plate : plates) {
+        sf::FloatRect plateBounds =
+            (playerClass == PlayerClass::Monk)
+            ? monk.getFullBounds()
+            : playerBounds;
+
+        plate.update(dt, plateBounds);
+
+        if (!plate.isActivated() || plate.isConsumed())
+            continue;
+
+        if (!coinsUI.spend(plate.getPrice())) {
+            // денег нет  красна€ подсветка
+            continue;
+        }
+
+        //  списываем деньги
+        coins -= plate.getPrice();
+        coinsUI.set(coins);
+
+        int amount = plate.consume();
+
+        switch (plate.getReward()) {
+        case PlateReward::HealSmall:
+            inventory.addSmall(amount);
+            break;
+        case PlateReward::HealBig:
+            inventory.addBig(amount);
+            break;
+        case PlateReward::DoubleJump:
+           if (playerClass == PlayerClass::Knight) knight.unlockDoubleJump();
+           break;
+        case PlateReward::Dash:
+            if (playerClass == PlayerClass::Knight) knight.unlockDash();
+            break;
+        }
+    }
+
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1) && potionTimer <= 0.f) {
+        if (inventory.useSmall()) {
+            if (playerClass == PlayerClass::Knight) knight.heal(1);
+            if (playerClass == PlayerClass::Monk) monk.heal(1);
+            if (playerClass == PlayerClass::Trooper) trooper.heal(1);
+        }
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num2) && potionTimer <= 0.f) {
+        if (inventory.useBig()) {
+            if (playerClass == PlayerClass::Knight) knight.heal(2);
+            if (playerClass == PlayerClass::Monk) monk.heal(2);
+            if (playerClass == PlayerClass::Trooper) trooper.heal(2);
+        }
+    }
+
+    //merchant
+    merchant.update(dt);
+
+    if (!croco.isAlive() && !crocoRewarded) {
+        coins += 1;
+        coinsUI.add(1);
+        crocoRewarded = true;
+    }
+
+    if (wizard.isDead() && !wizardRewarded) {
+        coins += 2;
+        coinsUI.add(2);
+        wizardRewarded = true;
+    }
+
 }
 
 void Game::render() {
@@ -172,12 +253,19 @@ void Game::render() {
     swamp.draw(window);
     worm.draw(window);
     croco.draw(window);
+    inventory.setView(camera);
+    inventory.draw(window);
+    coinsUI.draw(window);
 
     switch (playerClass) {
     case PlayerClass::Knight: knight.draw(window); break;
     case PlayerClass::Trooper: trooper.draw(window); break;
     case PlayerClass::Monk: monk.draw(window); break;
     }
+
+    merchant.draw(window);
+    for (auto& plate : plates)
+        plate.draw(window);
 
     wizard.draw(window);
 

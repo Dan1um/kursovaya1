@@ -105,13 +105,14 @@ void Monk::update(float dt, float gravity, const sf::FloatRect& groundBounds) {
         if (std::abs(velocity.x) < 0.1f) setState(State::Idle);
         else setState(State::Run);
     }
-
+    
     updateAnimation(dt);
 
     float sx = std::abs(sprite.getScale().x);
     sprite.setScale(facingRight ? sx : -sx, sprite.getScale().y);
     sprite.setOrigin(facingRight ? 0.f : frameWidth, 0.f);
 
+    
     updateHpBar();
 }
 
@@ -290,6 +291,10 @@ void Monk::resolveTileCollisionsY(const std::vector<sf::FloatRect>& tiles) {
             break;
         }
     }
+}
+
+void Monk::heal(int amount) {
+    hp = std::min(hp + amount, maxHp);
 }
 
 void Monk::handleTileCollisions(const std::vector<sf::FloatRect>& tiles)

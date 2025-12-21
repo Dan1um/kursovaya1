@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <SFML/Graphics.hpp>
 #include <array>
+#include "Inventory.h"
 
 class Monk {
 public:
@@ -21,7 +22,7 @@ public:
 
     sf::FloatRect getBounds() const;
 
-    sf::Vector2f getVelocity() const { return velocity; }   // <-- íóæíî äëÿ stomp
+    sf::Vector2f getVelocity() const { return velocity; }
     void bounce(float strength = 250.f);
     void applyKnockback(float strength, bool fromRight);
     bool isAlive() const { return hp > 0; }
@@ -30,6 +31,15 @@ public:
         sprite.setPosition(pos);
         position = pos;
     }
+
+    //void unlockDoubleJump() { canDoubleJump = true; }
+   //void unlockDash() { canDash = true; }
+
+    void heal(int amount);
+    sf::FloatRect getFullBounds() const {
+        return sprite.getGlobalBounds();
+    }
+
 
 private:
     enum class State { Idle, Run, Jump, Attack, Kick, Crouch, Fly };
@@ -68,6 +78,7 @@ private:
     int idleFrameCount = 4;
     int flyFrameCount = 2;
 
+    Inventory inventory;
 
     int currentFrame = 0; // alias for clarity (index)
     // movement
@@ -92,4 +103,8 @@ private:
     float invulDuration = 0.5f;
     sf::RectangleShape hpBack;
     sf::RectangleShape hpFront;
+
+    int potionsSmall = 0;
+    int potionsBig = 0;
+
 };

@@ -22,6 +22,8 @@ public:
         position = pos;
     }
 
+    bool droppedCoins = false;
+
 private:
     sf::Sprite sprite;
     sf::Vector2f position;
