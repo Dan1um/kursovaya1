@@ -8,16 +8,24 @@
 #include "Monk.h"
 
 #include "Croco.h"
-#include "Worm.h"
-#include "Swamp.h"
+#include "Spider.h"
+#include "Town.h"
 #include "Wizard.h"
 #include "Fireball.h"
 #include "Projectile.h"
+
+#include "CoinsUI.h"
+
+#include "Merchant.h"
+#include "Plate.h"
+
+#include "Inventory.h"
 
 class Game {
 public:
     Game(PlayerClass chosenClass);
     void run();
+    Town town;
 
 private:
     void processEvent();
@@ -33,12 +41,25 @@ private:
     Knight knight;
     Trooper trooper;
     Monk monk;
+    Inventory inventory;
+    CoinsUI coinsUI;
+
+    float potionCooldown = 0.25f;
+    float potionTimer = 0.f;
 
     // враги и уровень
     Croco croco;
-    Worm worm;
-    Swamp swamp;
+    Spider spider;
+    
     Wizard wizard;
+
+    bool crocoRewarded = false;
+    bool wizardRewarded = false;
+
+    std::vector<Plate> plates;
+    Merchant merchant;
+
+    int coins = 0;
 
     std::vector<Fireball> fireballs;
     std::vector<Bullet> bullets;

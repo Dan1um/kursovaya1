@@ -30,7 +30,7 @@ void Fireball::update(float deltaTime) {
 
     sprite.move(speed * direction * deltaTime, 0);
 
-    if (sprite.getPosition().x < -100 || sprite.getPosition().x > 2000)
+    if (sprite.getPosition().x < 0 || sprite.getPosition().x > 10000)
         alive = false;
 }
 

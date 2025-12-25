@@ -1,11 +1,11 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
-class Worm {
+class Spider {
 public:
-    Worm(const sf::Vector2f& pos);
+    Spider(const sf::Vector2f& position);
 
-    void update(float dt, const sf::FloatRect& groundBounds);
+    void update(float dt, const sf::FloatRect& groundBounds, const sf::Vector2f& playerPos);
     void draw(sf::RenderWindow& window);
     void takeDamage(int dmg);
     bool isAlive() const { return alive; }
@@ -17,11 +17,18 @@ public:
     }
 
 private:
-    sf::Sprite sprite;
-    sf::Texture texture;
-    sf::Vector2f position;
+    void loadTextures();
 
-    float frameTime = 0.f;
+    sf::Sprite sprite;
+    sf::Vector2f position;
+    std::vector<sf::Texture> idleTextures;
+
+    int currentFrame;
+    float frameTime;
+    float frameDuration;
+
+    void updateAnimation(float deltaTime, const sf::Vector2f& playerPos);
+
     int frame = 0;
     int maxFrames = 4;
     float animSpeed = 0.15f;

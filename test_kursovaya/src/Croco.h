@@ -9,51 +9,56 @@ public:
     void draw(sf::RenderWindow& window) const;
 
     sf::FloatRect getBounds() const { return sprite.getGlobalBounds(); }
-    bool isAlive() const { return alive; }
-
-    bool isHitActive() const { return hitActive; }
     sf::FloatRect getHitbox() const;
 
     int getAttackDamage() const { return 1; }
     void takeDamage(int dmg);
-
-    void setPosition(const sf::Vector2f& pos) {
-        sprite.setPosition(pos);
-        position = pos;
-    }
+    bool isAlive() const { return alive; }
+    bool isHitActive() const { return hitActive; }
 
 private:
+    enum class State {
+        Idle,
+        Attack,
+        Death
+    };
+
+    void updateAnimation(float dt);
+    void updateHpBar();
+
     sf::Sprite sprite;
-    sf::Vector2f position;
-    sf::Texture textureRun;
-    sf::Texture textureAttack;
 
-    float frameWidth = 32.f;
-    float frameHeight = 32.f;
-    int runFrameCount = 1;
-    int attackFrameCount = 1;
-    int currentFrame = 0;
-    float animationTimer = 0.f;
-    float animationSpeed = 0.12f;
+    sf::Texture idleTex;
+    sf::Texture attackTex;
+    sf::Texture deathTex;
 
-    bool facingRight = true;
-    bool attacking = false;
-    bool hitActive = false;
+    State state = State::Idle;
+
+    int frame = 0;
+    float frameTimer = 0.f;
+    float frameTime = 0.12f;
+
+    int idleFrames = 0;
+    int attackFrames = 4;
+    int deathFrames = 7;
+
+    float frameWidth = 64.f;
+    float frameHeight = 64.f;
 
     float moveSpeed = 80.f;
-    float attackRange = 60.f;
-    float attackCooldown = 1.0f;
+    float attackRange = 80.f;
+    float attackCooldown = 1.2f;
     float attackTimer = 0.f;
 
-    int hp = 3;
-    int maxHp = 3;
     bool alive = true;
+    bool hitActive = false;
+    bool facingRight = false;
 
+    int hp = 5;
+    int maxHp = 5;
     float invulTimer = 0.f;
-    const float invulDuration = 0.25f;
+    float invulDuration = 0.4f;
 
     sf::RectangleShape hpBack;
     sf::RectangleShape hpFront;
-
-    void updateHpBar();
 };

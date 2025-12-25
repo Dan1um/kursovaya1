@@ -14,7 +14,7 @@ Knight::Knight() {
     frameWidth = runTextures[0].getSize().x;
     frameHeight = runTextures[0].getSize().y;
     sprite.setScale(2.f, 2.f);
-    sprite.setPosition(200.f, 400.f);
+    sprite.setPosition({ 90.f, 600.f });
 
     hp = maxHp = 5;
     hpBack.setSize({ 100, 8 });
@@ -30,23 +30,53 @@ void Knight::update(float dt, float gravity, const sf::FloatRect& groundBounds) 
     bool right = sf::Keyboard::isKeyPressed(sf::Keyboard::D);
     bool jump = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
     bool attack = sf::Keyboard::isKeyPressed(sf::Keyboard::J);
+    bool dashKey = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift);
 
     if (attackCooldownTimer > 0) attackCooldownTimer -= dt;
     if (invulTimer > 0) invulTimer -= dt;
 
+    //dash
+    if (dashCooldown > 0) dashCooldown -= dt;
+    if (dashing) {
+        dashTime -= dt;
+        if (dashTime <= 0.f) {
+            dashing = false;
+        }
+    }
+
+    if (dashUnlocked && dashKey && dashCooldown <= 0.f && !dashing) {
+        dashing = true;
+        dashTime = dashDuration;
+        dashCooldown = dashCooldownTime;
+
+        velocity.y = 0;
+        velocity.x = facingRight ? dashSpeed : -dashSpeed;
+    }
+
     // движение
-    if (attacking) velocity.x = 0;
+    if (dashing) {
+        // ничего не делаем — dash управляет движением
+    }
+    else if (attacking) {
+        velocity.x = 0;
+    }
     else {
         velocity.x = 0;
         if (left) { velocity.x = -moveSpeed; facingRight = false; movingRight = false; }
         if (right) { velocity.x = moveSpeed; facingRight = true; movingRight = true; }
 
         // прыжок
-        if (onGround && jump) {
-            velocity.y = -jumpStrength;
-            onGround = false;
-            setState(State::Jump);
+        static bool jumpPressedLastFrame = false;
+
+        if (jump && !jumpPressedLastFrame) {
+            if (jumpCount < maxJumps) {
+                velocity.y = -jumpStrength;
+                onGround = false;
+                jumpCount++;
+                setState(State::Jump);
+            }
         }
+        jumpPressedLastFrame = jump;
 
         // атака
         if (onGround && attack && attackCooldownTimer <= 0) {
@@ -58,12 +88,15 @@ void Knight::update(float dt, float gravity, const sf::FloatRect& groundBounds) 
         }
     }
 
-    velocity.y += gravity * dt; sprite.move(velocity * dt);
+    if (!dashing) {
+        velocity.y += gravity * dt; 
+    }
+    sprite.move(velocity * dt);
     // ground check
     sf::FloatRect b = sprite.getGlobalBounds();
     if (b.intersects(groundBounds)) {
         sprite.setPosition(sprite.getPosition().x, groundBounds.top - b.height);
-        velocity.y = 0; onGround = true;
+        velocity.y = 0; onGround = true; jumpCount = 0;
     }
     else onGround = false;
 
@@ -185,6 +218,10 @@ void Knight::draw(sf::RenderWindow& w) {
         w.draw(hpBack);
         w.draw(hpFront);
     }
+    if (dashing)
+        sprite.setColor(sf::Color(200, 200, 255));
+    else
+        sprite.setColor(sf::Color::White);
 }
 
 void Knight::resolveTileCollisionsX(const std::vector<sf::FloatRect>& tiles) {
@@ -219,6 +256,11 @@ void Knight::resolveTileCollisionsY(const std::vector<sf::FloatRect>& tiles) {
         }
     }
 }
+
+void Knight::heal(int amount) {
+    hp = std::min(hp + amount, maxHp);
+}
+
 
 void Knight::handleTileCollisions(const std::vector<sf::FloatRect>& tiles)
 {
