@@ -9,26 +9,53 @@ int main() {
     sf::Font font;
     font.loadFromFile("assets/fonts/arial.ttf");
 
-    // ---------- ÊÍÎÏÊÈ ----------
-    sf::RectangleShape knightBtn({ 200, 60 });
-    sf::RectangleShape trooperBtn({ 200, 60 });
-    sf::RectangleShape monkBtn({ 200, 60 });
+    // ---------- ÔÎÍ ----------
+    sf::Texture bgTexture;
+    if (!bgTexture.loadFromFile("assets/textures/title-screen.png")) {
+        return -1;
+    }
 
-    knightBtn.setPosition(200, 80);
-    trooperBtn.setPosition(200, 160);
-    monkBtn.setPosition(200, 240);
+    sf::Sprite bgSprite(bgTexture);
+
+    float scaleX = 600.f / bgTexture.getSize().x;
+    float scaleY = 400.f / bgTexture.getSize().y;
+    bgSprite.setScale(scaleX, scaleY);
+
+    // ---------- ÊÍÎÏÊÈ ----------
+    sf::Vector2f btnSize(160.f, 40.f);
+
+    sf::RectangleShape knightBtn(btnSize);
+    sf::RectangleShape trooperBtn(btnSize);
+    sf::RectangleShape monkBtn(btnSize);
+
+    float centerX = 600.f / 2.f - btnSize.x / 2.f;
+    float startY = 260.f;      // íèæå öåíòðà ýêðàíà
+    float spacing = 50.f;
+
+    knightBtn.setPosition(centerX, startY);
+    trooperBtn.setPosition(centerX, startY + spacing);
+    monkBtn.setPosition(centerX, startY + spacing * 2);
 
     knightBtn.setFillColor(sf::Color(100, 100, 200));
     trooperBtn.setFillColor(sf::Color(100, 200, 100));
     monkBtn.setFillColor(sf::Color(200, 100, 100));
 
-    sf::Text knightText("Knight", font, 24);
-    sf::Text trooperText("Trooper", font, 24);
-    sf::Text monkText("Monk", font, 24);
+    sf::Text knightText("Knight", font, 18);
+    sf::Text trooperText("Trooper", font, 18);
+    sf::Text monkText("Monk", font, 18);
 
-    knightText.setPosition(260, 95);
-    trooperText.setPosition(250, 175);
-    monkText.setPosition(265, 255);
+    auto centerText = [](sf::Text& text, sf::RectangleShape& btn) {
+        sf::FloatRect t = text.getLocalBounds();
+        text.setOrigin(t.left + t.width / 2.f, t.top + t.height / 2.f);
+        text.setPosition(
+            btn.getPosition().x + btn.getSize().x / 2.f,
+            btn.getPosition().y + btn.getSize().y / 2.f
+        );
+    };
+
+    centerText(knightText, knightBtn);
+    centerText(trooperText, trooperBtn);
+    centerText(monkText, monkBtn);
 
     PlayerClass chosenClass;
     bool selected = false;
@@ -66,7 +93,8 @@ int main() {
             }
         }
 
-        menu.clear(sf::Color(30, 30, 30));
+        menu.clear();
+        menu.draw(bgSprite);
         menu.draw(knightBtn);
         menu.draw(trooperBtn);
         menu.draw(monkBtn);

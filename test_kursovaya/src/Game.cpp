@@ -4,11 +4,12 @@
 Game::Game(PlayerClass chosenClass)
     : window(sf::VideoMode(1280, 720), "Platformer")
     , playerClass(chosenClass)
-    , croco(sf::Vector2f(800.f, 400.f))
-    , worm(sf::Vector2f(500.f, 575.f))
-    , swamp(5000.f, 1280.f, 720.f)
-    , wizard(sf::Vector2f(1200.f, 520.f))
-    , merchant(sf::Vector2f(100.f, 650.f))
+    , merchant(sf::Vector2f(200.f, 640.f - 64.f))
+    , croco(sf::Vector2f(900.f, 640.f - 64.f))
+    , spider(sf::Vector2f(1400.f, 640.f - 50.f))
+    , wizard(sf::Vector2f(2200.f, 640.f - 135.f))
+    , town(1280.f, 720.f)
+
 {
     plates.emplace_back(sf::Vector2f(260.f, 625.f), PlateReward::HealSmall);
     plates.emplace_back(sf::Vector2f(340.f, 625.f), PlateReward::HealBig);
@@ -16,7 +17,7 @@ Game::Game(PlayerClass chosenClass)
     plates.emplace_back(sf::Vector2f(500.f, 625.f), PlateReward::Dash);
     window.setFramerateLimit(60);
     camera = window.getDefaultView();
-    groundBounds = swamp.getGroundBounds();
+    groundBounds = town.getGroundBounds();
     wizard.setFacingRight(false);
 
 }
@@ -87,7 +88,7 @@ void Game::update(float dt) {
 
     // ================= ENEMIES =================
     croco.update(dt, playerPos, groundBounds);
-    worm.update(dt, groundBounds);
+    spider.update(dt, groundBounds, playerPos);
     wizard.update(dt, playerPos, fireballs);
 
     // ================= KNIGHT MELEE DAMAGE =================
@@ -100,52 +101,6 @@ void Game::update(float dt) {
         if (!wizard.isDead() && hit.intersects(wizard.getBounds()))
             wizard.takeDamage(knight.getAttackDamage());
     }
-
-    // ================= MONK MELEE DAMAGE =================
-    if (playerClass == PlayerClass::Monk && monk.isHitActive()) {
-        sf::FloatRect hit = monk.getHitbox();
-
-        if (croco.isAlive() && hit.intersects(croco.getBounds()))
-            croco.takeDamage(monk.getAttackDamage());
-
-        if (!wizard.isDead() && hit.intersects(wizard.getBounds()))
-            wizard.takeDamage(monk.getAttackDamage());
-    }
-
-    // ================= CROCO DAMAGE =================
-    if (croco.isAlive() && croco.isHitActive()) {
-        if (playerBounds.intersects(croco.getHitbox())) {
-            if (playerClass == PlayerClass::Knight) knight.takeDamage(croco.getAttackDamage());
-            if (playerClass == PlayerClass::Trooper) trooper.takeDamage(croco.getAttackDamage());
-            if (playerClass == PlayerClass::Monk) monk.takeDamage(croco.getAttackDamage());
-        }
-    }
-
-    // ================= WORM =================
-    if (worm.isAlive() && playerBounds.intersects(worm.getBounds())) {
-        bool fromTop = (playerBounds.top + playerBounds.height * 0.6f < worm.getBounds().top);
-
-        if (fromTop && playerVel.y > 100.f) {
-            worm.takeDamage(1);
-            if (playerClass == PlayerClass::Knight) knight.bounce(320.f);
-            if (playerClass == PlayerClass::Trooper) trooper.bounce(320.f);
-            if (playerClass == PlayerClass::Monk) monk.bounce(320.f);
-        }
-        else {
-            if (playerClass == PlayerClass::Knight) knight.takeDamage(1);
-            if (playerClass == PlayerClass::Trooper) trooper.takeDamage(1);
-            if (playerClass == PlayerClass::Monk) monk.takeDamage(1);
-        }
-    }
-
-    // ================= CAMERA =================
-    sf::Vector2f camCenter = playerPos;
-    camCenter.y = 360.f;
-    camCenter.x = std::clamp(camCenter.x, 640.f, 5000.f - 640.f);
-    camera.setCenter(camCenter);
-
-    swamp.update(playerPos);
-
     // ================= FIREBALLS =================
     for (auto& f : fireballs) f.update(dt);
     for (auto& f : fireballs) {
@@ -173,6 +128,61 @@ void Game::update(float dt) {
             b.kill();
         }
     }
+    // ================= MONK MELEE DAMAGE =================
+    if (playerClass == PlayerClass::Monk && monk.isHitActive()) {
+        sf::FloatRect hit = monk.getHitbox();
+
+        if (croco.isAlive() && hit.intersects(croco.getBounds()))
+            croco.takeDamage(monk.getAttackDamage());
+
+        if (!wizard.isDead() && hit.intersects(wizard.getBounds()))
+            wizard.takeDamage(monk.getAttackDamage());
+    }
+
+    // ================= CROCO DAMAGE =================
+    if (croco.isAlive() && croco.isHitActive()) {
+        if (playerBounds.intersects(croco.getHitbox())) {
+            if (playerClass == PlayerClass::Knight) knight.takeDamage(croco.getAttackDamage());
+            if (playerClass == PlayerClass::Trooper) trooper.takeDamage(croco.getAttackDamage());
+            if (playerClass == PlayerClass::Monk) monk.takeDamage(croco.getAttackDamage());
+        }
+    }
+
+    // ================= spider =================
+    if (spider.isAlive() && playerBounds.intersects(spider.getBounds())) {
+        bool fromTop = (playerBounds.top + playerBounds.height * 0.6f < spider.getBounds().top);
+
+        if (fromTop && playerVel.y > 100.f) {
+            spider.takeDamage(1);
+            if (playerClass == PlayerClass::Knight) knight.bounce(320.f);
+            if (playerClass == PlayerClass::Trooper) trooper.bounce(320.f);
+            if (playerClass == PlayerClass::Monk) monk.bounce(320.f);
+        }
+        else {
+            if (playerClass == PlayerClass::Knight) knight.takeDamage(1);
+            if (playerClass == PlayerClass::Trooper) trooper.takeDamage(1);
+            if (playerClass == PlayerClass::Monk) monk.takeDamage(1);
+        }
+    }
+
+    // ================= CAMERA =================
+
+    sf::Vector2f camCenter = playerPos;
+    camCenter.y = camera.getCenter().y; // Y фиксируем
+
+    float halfW = camera.getSize().x * 0.5f;
+
+    camCenter.x = std::clamp(
+        playerPos.x,
+        halfW,
+        town.getLevelWidth() - halfW
+    );
+
+    camera.setCenter(camCenter);
+    window.setView(camera);
+
+
+
 
     for (auto& plate : plates) {
         sf::FloatRect plateBounds =
@@ -185,12 +195,14 @@ void Game::update(float dt) {
         if (!plate.isActivated() || plate.isConsumed())
             continue;
 
+        // ? проверка денег
         if (!coinsUI.spend(plate.getPrice())) {
-            // денег нет  красная подсветка
-            continue;
+            coinsUI.flashRed(); // подсветка текста
+            plate.resetActivation();
+            break;
         }
 
-        //  списываем деньги
+        // ? списываем деньги ТОЛЬКО через CoinsUI
         coins -= plate.getPrice();
         coinsUI.set(coins);
 
@@ -200,17 +212,30 @@ void Game::update(float dt) {
         case PlateReward::HealSmall:
             inventory.addSmall(amount);
             break;
+
         case PlateReward::HealBig:
             inventory.addBig(amount);
             break;
+
         case PlateReward::DoubleJump:
-           if (playerClass == PlayerClass::Knight) knight.unlockDoubleJump();
-           break;
+            if (playerClass == PlayerClass::Knight) knight.unlockDoubleJump();
+            if (playerClass == PlayerClass::Monk) monk.unlockDoubleJump();
+            if (playerClass == PlayerClass::Trooper) trooper.unlockDoubleJump();
+            break;
+
         case PlateReward::Dash:
             if (playerClass == PlayerClass::Knight) knight.unlockDash();
+            if (playerClass == PlayerClass::Monk) monk.unlockDash();
+            if (playerClass == PlayerClass::Trooper) trooper.unlockDash();
             break;
         }
+
+        plate.resetActivation();
+        break;
+
+        town.update(camera.getCenter());
     }
+
 
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1) && potionTimer <= 0.f) {
@@ -233,14 +258,14 @@ void Game::update(float dt) {
     merchant.update(dt);
 
     if (!croco.isAlive() && !crocoRewarded) {
-        coins += 1;
-        coinsUI.add(1);
+        coins += 4;
+        coinsUI.add(4);
         crocoRewarded = true;
     }
 
     if (wizard.isDead() && !wizardRewarded) {
-        coins += 2;
-        coinsUI.add(2);
+        coins += 3;
+        coinsUI.add(3);
         wizardRewarded = true;
     }
 
@@ -250,8 +275,8 @@ void Game::render() {
     window.clear(sf::Color(70, 180, 255));
     window.setView(camera);
 
-    swamp.draw(window);
-    worm.draw(window);
+    town.draw(window);
+    spider.draw(window);
     croco.draw(window);
     inventory.setView(camera);
     inventory.draw(window);

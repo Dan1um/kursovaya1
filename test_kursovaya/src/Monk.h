@@ -32,8 +32,8 @@ public:
         position = pos;
     }
 
-    //void unlockDoubleJump() { canDoubleJump = true; }
-   //void unlockDash() { canDash = true; }
+    void unlockDoubleJump() { doubleJumpUnlocked = true; maxJumps = 2; }
+    void unlockDash() { dashUnlocked = true; }
 
     void heal(int amount);
     sf::FloatRect getFullBounds() const {
@@ -88,6 +88,22 @@ private:
     float moveSpeed = 170.f;
     float jumpStrength = 520.f;
     bool movingRight = true;
+    int jumpCount = 0;
+    int maxJumps = 1;
+
+    // abilities
+    bool doubleJumpUnlocked = false;
+    bool dashUnlocked = false;
+
+    // dash
+    bool dashing = false;
+    float dashTime = 0.f;
+    float dashCooldown = 0.f;
+
+    // constants
+    float dashDuration = 0.25f;
+    float dashSpeed = 1000.f;
+    float dashCooldownTime = 0.9f;
 
     // state
     State currentState = State::Idle;

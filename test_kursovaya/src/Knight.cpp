@@ -14,7 +14,7 @@ Knight::Knight() {
     frameWidth = runTextures[0].getSize().x;
     frameHeight = runTextures[0].getSize().y;
     sprite.setScale(2.f, 2.f);
-    sprite.setPosition(200.f, 400.f);
+    sprite.setPosition({ 90.f, 600.f });
 
     hp = maxHp = 5;
     hpBack.setSize({ 100, 8 });

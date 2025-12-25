@@ -37,10 +37,10 @@
     <ClCompile Include="src\Plate.cpp" />
     <ClCompile Include="src\Projectile.cpp" />
     <ClCompile Include="src\pugixml.cpp" />
-    <ClCompile Include="src\Swamp.cpp" />
+    <ClCompile Include="src\Town.cpp" />
     <ClCompile Include="src\Trooper.cpp" />
     <ClCompile Include="src\Wizard.cpp" />
-    <ClCompile Include="src\Worm.cpp" />
+    <ClCompile Include="src\Spider.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\CoinsUI.h" />
@@ -56,10 +56,10 @@
     <ClInclude Include="src\Projectile.h" />
     <ClInclude Include="src\pugiconfig.hpp" />
     <ClInclude Include="src\pugixml.hpp" />
-    <ClInclude Include="src\Swamp.h" />
+    <ClInclude Include="src\Town.h" />
     <ClInclude Include="src\Trooper.h" />
     <ClInclude Include="src\Wizard.h" />
-    <ClInclude Include="src\Worm.h" />
+    <ClInclude Include="src\Spider.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\levels\21.tsx" />

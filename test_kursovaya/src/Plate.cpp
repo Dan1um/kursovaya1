@@ -6,8 +6,8 @@ Plate::Plate(sf::Vector2f pos, PlateReward r, int amount)
     switch (reward) {
     case PlateReward::HealSmall: price = 3; usesLeft = 3; break;
     case PlateReward::HealBig:   price = 5; usesLeft = 3; break;
-    case PlateReward::DoubleJump: price = 1; usesLeft = 1; break;
-    case PlateReward::Dash:       price = 1; usesLeft = 1; break;
+    case PlateReward::DoubleJump: price = 7; usesLeft = 1; break;
+    case PlateReward::Dash:       price = 10; usesLeft = 1; break;
     }
 
     shape.setSize({ 64.f, 16.f });
@@ -20,15 +20,25 @@ Plate::Plate(sf::Vector2f pos, PlateReward r, int amount)
 
     smallTex.loadFromFile("assets/textures/shop/icons/common_heal.png");
     bigTex.loadFromFile("assets/textures/shop/icons/big_heal.png");
+    jumpTex.loadFromFile("assets/textures/shop/icons/double_jump.png");
+    dashTex.loadFromFile("assets/textures/shop/icons/dash.png");
 
     smallIcon.setTexture(smallTex);
     bigIcon.setTexture(bigTex);
+    jumpIcon.setTexture(jumpTex);
+    dashIcon.setTexture(dashTex);    
 
     smallIcon.setScale(1.f, 1.f);
     bigIcon.setScale(1.f, 1.f);
 
     smallIcon.setPosition(275.f, 625.f);
     bigIcon.setPosition(355.f, 625.f);
+
+    jumpIcon.setScale(1.f, 1.f);
+    dashIcon.setScale(1.f, 1.f);
+
+    jumpIcon.setPosition(435.f, 625.f);
+    dashIcon.setPosition(515.f, 625.f);
 
 }
 
@@ -84,12 +94,8 @@ void Plate::draw(sf::RenderWindow& w) {
         w.draw(shape);
         w.draw(progressBar);
     }
-    if (!consumed) {
-        w.draw(shape);
-        w.draw(progressBar);
-
-        w.draw(smallIcon);
-        w.draw(bigIcon);
-    }
-
+    w.draw(smallIcon);
+    w.draw(bigIcon);
+    w.draw(jumpIcon);
+    w.draw(dashIcon);
 }

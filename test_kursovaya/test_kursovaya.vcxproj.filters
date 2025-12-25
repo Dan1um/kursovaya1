@@ -49,10 +49,10 @@
     <ClCompile Include="src\Croco.cpp">
       <Filter>Исходные файлы\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Worm.cpp">
+    <ClCompile Include="src\Spider.cpp">
       <Filter>Исходные файлы\src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Swamp.cpp">
+    <ClCompile Include="src\Town.cpp">
       <Filter>Исходные файлы\src</Filter>
     </ClCompile>
     <ClCompile Include="src\Wizard.cpp">
@@ -96,10 +96,10 @@
     <ClInclude Include="src\Croco.h">
       <Filter>Исходные файлы\src</Filter>
     </ClInclude>
-    <ClInclude Include="src\Worm.h">
+    <ClInclude Include="src\Spider.h">
       <Filter>Исходные файлы\src</Filter>
     </ClInclude>
-    <ClInclude Include="src\Swamp.h">
+    <ClInclude Include="src\Town.h">
       <Filter>Исходные файлы\src</Filter>
     </ClInclude>
     <ClInclude Include="src\Wizard.h">

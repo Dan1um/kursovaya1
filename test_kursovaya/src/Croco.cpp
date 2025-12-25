@@ -1,129 +1,154 @@
-    #include "Croco.h"
-    #include <iostream>
-    #include <cmath>
+#include "Croco.h"
+#include <cmath>
+#include <iostream>
 
-    Croco::Croco(const sf::Vector2f& pos) {
-        if (!textureRun.loadFromFile("assets/textures/croco mob run.png")) std::cerr << "croco run load fail\n";
-        if (!textureAttack.loadFromFile("assets/textures/croco mob attack.png")) std::cerr << "croco attack load fail\n";
+Croco::Croco(const sf::Vector2f& pos) {
+    idleTex.loadFromFile("assets/textures/ghoul/ghoulIdle.png");
+    attackTex.loadFromFile("assets/textures/ghoul/ghoulAttack.png");
+    deathTex.loadFromFile("assets/textures/ghoul/ghoulDeath.png");
 
-        sprite.setTexture(textureRun);
-        frameWidth = 32.f;
-        frameHeight = 32.f;
-        runFrameCount = (int)(textureRun.getSize().x / frameWidth);
-        attackFrameCount = (int)(textureAttack.getSize().x / frameWidth);
+    sprite.setTexture(idleTex);
 
-        sprite.setTextureRect(sf::IntRect(0, 0, (int)frameWidth, (int)frameHeight));
-        sprite.setScale(3.f, 3.f);
-        sprite.setPosition(pos.x, pos.y + 100.f);
+    idleFrames = idleTex.getSize().x / frameWidth;
 
-        hpBack.setSize({ 60.f,6.f });
-        hpBack.setFillColor(sf::Color(50, 50, 50));
-        hpFront.setSize({ 60.f,6.f });
-        hpFront.setFillColor(sf::Color::Red);
-    }
+    sprite.setTextureRect({ 0, 0, (int)frameWidth, (int)frameHeight });
+    sprite.setScale(2.5f, 2.5f);
+    sprite.setPosition(pos);
 
-    void Croco::update(float dt, const sf::Vector2f& playerPos, const sf::FloatRect& groundBounds) {
-        if (!alive) return;
+    hpBack.setSize({ 60.f, 6.f });
+    hpBack.setFillColor(sf::Color(40, 40, 40));
+    hpFront.setSize({ 60.f, 6.f });
+    hpFront.setFillColor(sf::Color::Red);
+}
 
-        attackTimer += dt;
-        if (invulTimer > 0.f) invulTimer -= dt;
+void Croco::update(float dt, const sf::Vector2f& playerPos, const sf::FloatRect& groundBounds) {
+    if (!alive && state != State::Death)
+        return;
 
-        sf::Vector2f pos = sprite.getPosition();
-        float dx = playerPos.x - pos.x;
+    if (invulTimer > 0.f)
+        invulTimer -= dt;
 
-        // decide
-        if (!attacking) {
-            if (std::abs(dx) <= attackRange && attackTimer >= attackCooldown) {
-                attacking = true;
-                attackTimer = 0.f;
-                currentFrame = 0;
-                hitActive = false;
-            }
-            else {
-                if (std::abs(dx) > 5.f) pos.x += (dx > 0 ? 1.f : -1.f) * moveSpeed * dt;
-            }
-        }
+    attackTimer += dt;
 
-        // apply X, gravity and snap to ground
-        sprite.setPosition(pos.x, sprite.getPosition().y);
-        sprite.move(0.f, 1000.f * dt);
-        sf::FloatRect bounds = sprite.getGlobalBounds();
-        if (bounds.intersects(groundBounds))
-            sprite.setPosition(bounds.left, groundBounds.top - bounds.height);
+    sf::Vector2f pos = sprite.getPosition();
+    float dx = playerPos.x - pos.x;
+    facingRight = dx > 0.f;
 
-        // animation
-        animationTimer += dt;
-        if (animationTimer >= animationSpeed) {
-            animationTimer = 0.f;
-            currentFrame++;
-
-            if (attacking) {
-                sprite.setTexture(textureAttack);
-                // use attackFrameCount for bounds checking
-                if (currentFrame >= attackFrameCount) {
-                    // end attack cleanly
-                    currentFrame = 0;
-                    attacking = false;
-                    hitActive = false;
-                    sprite.setTexture(textureRun);
-                }
-                else {
-                    hitActive = (currentFrame == attackFrameCount / 2);
-                }
-                sprite.setTextureRect(sf::IntRect((int)(currentFrame * frameWidth), 0, (int)frameWidth, (int)frameHeight));
-            }
-            else {
-                sprite.setTexture(textureRun);
-                currentFrame = currentFrame % runFrameCount;
-                sprite.setTextureRect(sf::IntRect((int)(currentFrame * frameWidth), 0, (int)frameWidth, (int)frameHeight));
-            }
-        }
-
-        // mirror: croco art faces left by default Ч make it look toward player
-        facingRight = (dx > 0);
-        float sx = std::abs(sprite.getScale().x);
-        if (facingRight) {
-            sprite.setScale(-sx, sprite.getScale().y);
-            sprite.setOrigin(frameWidth, 0.f);
+    if (state == State::Idle && alive) {
+        if (std::abs(dx) <= attackRange && attackTimer >= attackCooldown) {
+            state = State::Attack;
+            frame = 0;
+            frameTimer = 0.f;
+            attackTimer = 0.f;
+            hitActive = false;
         }
         else {
-            sprite.setScale(sx, sprite.getScale().y);
-            sprite.setOrigin(0.f, 0.f);
+            pos.x += (dx > 0 ? 1.f : -1.f) * moveSpeed * dt;
         }
-
-        updateHpBar();
     }
 
-    sf::FloatRect Croco::getHitbox() const {
-        if (!hitActive) return {};
-        sf::FloatRect b = sprite.getGlobalBounds();
-        float w = b.width * 0.5f;
-        float h = b.height * 0.45f;
-        float y = b.top + b.height * 0.35f;
-        float x = facingRight ? (b.left + b.width - w) : (b.left - w);
-        return { x, y, w, h };
+    // gravity
+    sprite.move(0.f, 1000.f * dt);
+    sprite.setPosition(pos.x, sprite.getPosition().y);
+
+    sf::FloatRect b = sprite.getGlobalBounds();
+    if (b.intersects(groundBounds)) {
+        sprite.setPosition(b.left, groundBounds.top - b.height);
     }
 
-    void Croco::takeDamage(int dmg) {
-        if (invulTimer > 0.f || !alive) return;
-        hp -= dmg;
-        if (hp <= 0) { hp = 0; alive = false; }
-        invulTimer = invulDuration;
-        updateHpBar();
+    updateAnimation(dt);
+    updateHpBar();
+
+    float sx = std::abs(sprite.getScale().x);
+    sprite.setScale(facingRight ? -sx : sx, sprite.getScale().y);
+    sprite.setOrigin(facingRight ? frameWidth : 0.f, 0.f);
+}
+
+void Croco::updateAnimation(float dt) {
+    frameTimer += dt;
+    if (frameTimer < frameTime)
+        return;
+
+    frameTimer = 0.f;
+    frame++;
+
+    if (state == State::Idle) {
+        frame %= idleFrames;
+        sprite.setTexture(idleTex);
+    }
+    else if (state == State::Attack) {
+        sprite.setTexture(attackTex);
+
+        hitActive = (frame == 2);
+
+        if (frame >= attackFrames) {
+            frame = 0;
+            state = State::Idle;
+            hitActive = false;
+        }
+    }
+    else if (state == State::Death) {
+        sprite.setTexture(deathTex);
+        if (frame >= deathFrames) {
+            frame = deathFrames - 1; // застываем на последнем кадре
+        }
     }
 
-    void Croco::updateHpBar() {
-        float r = (float)hp / (float)maxHp;
-        hpFront.setSize({ 60.f * r, 6.f });
-        sf::FloatRect b = sprite.getGlobalBounds();
-        sf::Vector2f pos(b.left + (b.width - 60.f) / 2.f, b.top - 12.f);
-        hpBack.setPosition(pos);
-        hpFront.setPosition(pos);
-    }
+    sprite.setTextureRect({
+        (int)(frame * frameWidth),
+        0,
+        (int)frameWidth,
+        (int)frameHeight
+        });
+}
 
-    void Croco::draw(sf::RenderWindow& window) const {
-        if (!alive) return;
-        window.draw(sprite);
+sf::FloatRect Croco::getHitbox() const {
+    if (!hitActive)
+        return {};
+
+    sf::FloatRect b = sprite.getGlobalBounds();
+    float w = b.width * 0.4f;
+    float h = b.height * 0.4f;
+
+    float x = facingRight ? (b.left + b.width - w) : b.left;
+    float y = b.top + b.height * 0.35f;
+
+    return { x, y, w, h };
+}
+
+void Croco::takeDamage(int dmg) {
+    if (invulTimer > 0.f || state == State::Death)
+        return;
+
+    hp -= dmg;
+    invulTimer = invulDuration;
+
+    if (hp <= 0) {
+        hp = 0;
+        alive = false;
+        state = State::Death;
+        frame = 0;
+        frameTimer = 0.f;
+    }
+}
+
+void Croco::updateHpBar() {
+    if (state == State::Death)
+        return;
+
+    float r = (float)hp / (float)maxHp;
+    hpFront.setSize({ 60.f * r, 6.f });
+
+    sf::FloatRect b = sprite.getGlobalBounds();
+    sf::Vector2f p(b.left + (b.width - 60.f) / 2.f, b.top - 12.f);
+    hpBack.setPosition(p);
+    hpFront.setPosition(p);
+}
+
+void Croco::draw(sf::RenderWindow& window) const {
+    window.draw(sprite);
+    if (state != State::Death) {
         window.draw(hpBack);
         window.draw(hpFront);
     }
+}

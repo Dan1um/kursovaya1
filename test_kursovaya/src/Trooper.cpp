@@ -1,4 +1,5 @@
 #include "Trooper.h"
+#include "Town.h"
 #include <SFML/Window.hpp>
 
 Trooper::Trooper() {
@@ -16,7 +17,7 @@ Trooper::Trooper() {
     frameHeight = idleTextures[0].getSize().y;
 
     sprite.setScale(2.f, 2.f);
-    sprite.setPosition(200.f, 400.f);
+    sprite.setPosition({ 90.f, 600.f });
 
     hpBack.setSize({ 100, 8 });
     hpBack.setFillColor(sf::Color(40, 40, 40));
@@ -24,44 +25,65 @@ Trooper::Trooper() {
     hpFront.setFillColor(sf::Color::Green);
 }
 
-void Trooper::update(float dt, float gravity, const sf::FloatRect& groundBounds, std::vector<Bullet>& bullets) {
+void Trooper::update(float dt, float gravity,
+    const sf::FloatRect& groundBounds,
+    std::vector<Bullet>& bullets)
+{
     if (!isAlive()) return;
 
     bool L = sf::Keyboard::isKeyPressed(sf::Keyboard::A);
     bool R = sf::Keyboard::isKeyPressed(sf::Keyboard::D);
     bool J = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
     bool Shoot = sf::Keyboard::isKeyPressed(sf::Keyboard::J);
+    bool dashKey = sf::Keyboard::isKeyPressed(sf::Keyboard::LShift);
 
     if (invulTimer > 0) invulTimer -= dt;
     if (shootTimer > 0) shootTimer -= dt;
 
-    // движение
-    velocity.x = 0;
-    if (L) { velocity.x = -moveSpeed; facingRight = false; }
-    if (R) { velocity.x = moveSpeed; facingRight = true; }
+    if (dashCooldown > 0) dashCooldown -= dt;
+    if (dashing) {
+        dashTime -= dt;
+        if (dashTime <= 0.f)
+            dashing = false;
+    }
 
-    if (onGround && J) {
+    if (dashUnlocked && dashKey && dashCooldown <= 0 && !dashing) {
+        dashing = true;
+        dashTime = dashDuration;
+        dashCooldown = dashCooldownTime;
+        velocity.y = 0;
+        velocity.x = facingRight ? dashSpeed : -dashSpeed;
+    }
+
+    if (!dashing && currentState != State::Shoot) {
+        velocity.x = 0;
+        if (L) { velocity.x = -moveSpeed; facingRight = false; }
+        if (R) { velocity.x = moveSpeed; facingRight = true; }
+    }
+
+    static bool jumpPressedLast = false;
+    if (J && !jumpPressedLast && jumpCount < maxJumps) {
         velocity.y = -jumpStrength;
+        jumpCount++;
         onGround = false;
         setState(State::Jump);
     }
+    jumpPressedLast = J;
 
-    // атака
-    if (Shoot && shootTimer <= 0 && onGround) {
+    if (Shoot && shootTimer <= 0 && !dashing) {
         setState(State::Shoot);
-        frame = 0;
         shootTimer = shootCooldown;
     }
 
-    velocity.y += gravity * dt;
+    if (!dashing) velocity.y += gravity * dt;
     sprite.move(velocity * dt);
 
-    // ground
     sf::FloatRect b = sprite.getGlobalBounds();
     if (b.intersects(groundBounds)) {
         sprite.setPosition(sprite.getPosition().x, groundBounds.top - b.height);
         velocity.y = 0;
         onGround = true;
+        jumpCount = 0;
     }
     else onGround = false;
 
@@ -78,6 +100,7 @@ void Trooper::update(float dt, float gravity, const sf::FloatRect& groundBounds,
 
     updateHpBar();
 }
+
 
 void Trooper::updateAnimation(float dt, std::vector<Bullet>& bullets) {
     frameTime += dt;

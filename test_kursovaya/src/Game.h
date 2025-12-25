@@ -8,8 +8,8 @@
 #include "Monk.h"
 
 #include "Croco.h"
-#include "Worm.h"
-#include "Swamp.h"
+#include "Spider.h"
+#include "Town.h"
 #include "Wizard.h"
 #include "Fireball.h"
 #include "Projectile.h"
@@ -25,6 +25,7 @@ class Game {
 public:
     Game(PlayerClass chosenClass);
     void run();
+    Town town;
 
 private:
     void processEvent();
@@ -48,8 +49,8 @@ private:
 
     // враги и уровень
     Croco croco;
-    Worm worm;
-    Swamp swamp;
+    Spider spider;
+    
     Wizard wizard;
 
     bool crocoRewarded = false;

@@ -26,7 +26,7 @@ public:
     sf::Vector2f getVelocity() const { return velocity; }
     void setPosition(const sf::Vector2f& p) { sprite.setPosition(p); }
 
-    void unlockDoubleJump() { doubleJumpUnlocked = true; }
+    void unlockDoubleJump() { doubleJumpUnlocked = true; maxJumps = 2; }
     void unlockDash() { dashUnlocked = true; }
 
     void heal(int amount);
@@ -43,9 +43,6 @@ private:
     // abilities
     bool doubleJumpUnlocked = false;
     bool dashUnlocked = false;
-
-    // double jump
-    bool canDoubleJump = false;
 
     // dash
     bool dashing = false;
@@ -68,6 +65,8 @@ private:
     sf::Vector2f velocity{ 0,0 };
     float moveSpeed = 220.f;
     float jumpStrength = 520.f;
+    int jumpCount = 0;
+    int maxJumps = 1;
 
     int frameWidth = 0;
     int frameHeight = 0;
